@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: interswitch
+
+---
+
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+  name: interswitch-demo
+  namespace: interswitch
+  labels:
+    app: interswitch-demo
+
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: interswitch-demo
+  template:
+    metadata:
+      labels:
+        app: interswitch-demo
+    spec:
+      containers:
+      - name: interswitch-demo
+        image: ${REPOSITORY_TAG}
+        resources:
+          requests:
+            memory: 100Mi
+            cpu: 0.25
+        imagePullPolicy: Always 
+        ports:
+        - containerPort: 8088
+
+
+---
+
+
+
+
+apiVersion: v1
+
+kind: Service
+
+metadata:
+  name: interswitch-demo
+  namespace: interswitch
+
+spec:
+  type: LoadBalancer
+  selector:
+    app: interswitch-demo
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8088
+
