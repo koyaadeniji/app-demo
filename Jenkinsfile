@@ -14,7 +14,7 @@ pipeline {
                 checkout scm
             }
         }
-        
+
         stage('Build Maven Project') {
             steps {
                 sh 'mvn clean package'
@@ -26,7 +26,7 @@ pipeline {
                 sh 'docker build -t koyaadeniji/app-demo:${GIT_COMMIT} .'
             }
         }
-        
+
         stage('Publish to DockerHub') {
             steps {
                 withDockerRegistry([credentialsId: "docker-hub", url: ""]) {
@@ -34,13 +34,26 @@ pipeline {
                 }
             }
         }
-    }
 
-    post {
-        failure {
-            mail to: 'your-email@example.com',
-                subject: "Failed Pipeline: ${currentBuild.fullDisplayName}",
-                body: "Something is wrong with ${env.BUILD_URL}"
+        stage('Install kubectl') {
+            steps {
+                sh 'curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl'
+                sh 'chmod +x ./kubectl'
+                sh 'sudo mv ./kubectl /usr/local/bin/kubectl'
+            }
+        }
+
+        stage('Deploy to EKS Cluster') {
+            steps {
+                sh 'aws eks update-kubeconfig --region us-east-1 --name ekscluster'
+                sh 'kubectl apply -f deployment.yml'
+            }
+        }
+
+        stage('Clean up') {
+            steps {
+                sh 'docker rmi -f $(docker images -q koyaadeniji/app-demo)'
+            }
         }
     }
 }
