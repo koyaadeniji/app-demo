@@ -14,13 +14,27 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t koyaadeniji/app-demo:${env.GIT_COMMIT} .'
+                script {
+                    def imageTag = "${env.GIT_COMMIT}"
+                    def imageName = "koyaadeniji/app-demo:${imageTag}"
+                    sh """
+                        echo "Building Docker image: ${imageName}"
+                        docker build -t ${imageName} .
+                    """
+                }
             }
         }
         stage('Publish to DockerHub') {
             steps {
                 withDockerRegistry([credentialsId: 'dockerhub-credentials', url: 'https://index.docker.io/v1/']) {
-                    sh 'docker push koyaadeniji/app-demo:${env.GIT_COMMIT}'
+                    script {
+                        def imageTag = "${env.GIT_COMMIT}"
+                        def imageName = "koyaadeniji/app-demo:${imageTag}"
+                        sh """
+                            echo "Pushing Docker image: ${imageName}"
+                            docker push ${imageName}
+                        """
+                    }
                 }
             }
         }
@@ -36,8 +50,12 @@ pipeline {
         }
         stage('Deploy to Cluster') {
             steps {
-                sh 'aws eks update-kubeconfig --region us-east-1 --name ekscluster'
-                sh 'kubectl apply -f deployment.yaml'
+                sh '''
+                    echo "Updating kubeconfig"
+                    aws eks update-kubeconfig --region us-east-1 --name ekscluster
+                    echo "Applying Kubernetes deployment"
+                    kubectl apply -f k8s/deployment.yaml
+                '''
             }
         }
         stage('Confirm Deployment') {
