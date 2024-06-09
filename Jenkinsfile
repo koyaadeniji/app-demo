@@ -13,7 +13,7 @@ pipeline {
     stage ('Build') {
       steps {
         sh 'printenv'
-        sh 'docker build -t koyaadeniji/app-demo:""$GIT_COMMIT"" .'
+        sh "docker build -t koyaadeniji/app-demo:${GIT_COMMIT} ."
       }
     }
     
