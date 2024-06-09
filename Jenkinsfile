@@ -10,6 +10,17 @@ pipeline {
   }
 
   stages {
+    stage ('Checkout SCM') {
+      steps { 
+	   check scm
+	}
+     }
+
+    stage ('Build Maven Project') {
+      steps {
+        sh 'mvn clean package'
+	}
+      }	
     stage ('Build') {
       steps {
         sh 'printenv'
