@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: interswitch-demo
-        image: koyaadeniji/app-demo:${BUILD_ID}
+        image: ${REPOSITORY_TAG}
         resources:
           requests:
             memory: 100Mi

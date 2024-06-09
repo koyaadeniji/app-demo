@@ -23,14 +23,14 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t koyaadeniji/app-demo:${GIT_COMMIT} .'
+                sh 'docker build -t koyaadeniji/app-demo:${BUILD_ID} .'
             }
         }
 
         stage('Publish to DockerHub') {
             steps {
                 withDockerRegistry([credentialsId: "docker-hub", url: ""]) {
-                    sh 'docker push koyaadeniji/app-demo:${GIT_COMMIT}'
+                    sh 'docker push koyaadeniji/app-demo:${BUILD_ID}'
                 }
             }
         }
