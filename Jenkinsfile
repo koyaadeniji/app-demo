@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        REPOSITORY_TAG = "${PRIVATE_REPO_TAG}/${PRIVATE_APP_NAME}:${VERSION}"
+        REPOSITORY_TAG = "${REPO_TAG}/${APP_NAME}:${VERSION}"
         REPO_TAG = "koyaadeniji"
         APP_NAME = "app-demo"
         VERSION = "${BUILD_ID}"
